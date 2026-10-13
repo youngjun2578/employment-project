@@ -170,3 +170,23 @@ h1.page-title { font-size: 22px; margin: 4px 0 4px; letter-spacing: -0.3px; }
 }
 
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+/* 공고문 열람 */
+.notice-viewer { min-width: 0; }
+.viewer-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 12px; margin-bottom: 10px; font-size: 14px; }
+.viewer-file { color: var(--ink-2); min-width: 0; overflow-wrap: anywhere; }
+.viewer-link { white-space: nowrap; font-size: 14px; }
+.viewer-status, .viewer-meta { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+.pdf-viewer { width: 100%; min-width: 0; overflow: hidden; }
+.pdf-page {
+  position: relative; width: 100%; background: #fff; border: 1px solid var(--line);
+  box-shadow: 0 1px 4px rgba(15, 37, 87, .08); margin: 0 0 12px;
+}
+.pdf-page:not(.is-rendered) { background: repeating-linear-gradient(-45deg, #fafbfd, #fafbfd 10px, #f3f5f9 10px, #f3f5f9 20px); }
+.pdf-page canvas { display: block; width: 100%; height: 100%; }
+.pdf-page-label { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 14px; }
+.notice-image { display: block; width: 100%; height: auto; border: 1px solid var(--line); background: #fff; }
+.notice-fallback { border: 1px solid var(--warn-line); background: var(--warn-bg); border-radius: 8px; padding: 16px; }
+.notice-fallback p { margin: 0 0 8px; }
+.notice-fallback .fallback-title { font-weight: 700; color: #6b4a00; font-size: 16px; }
+.muted-text { color: var(--muted); font-size: 13px; }
