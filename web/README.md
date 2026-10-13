@@ -9,7 +9,7 @@
 cd web
 npm install          # postinstall 이 pdf.js 파일을 public/pdfjs/ 로 복사
 npm run dev          # http://localhost:3000 (기본: 샘플 데이터 모드)
-npm test             # mapper·정렬/필터·수집 파이프라인 테스트
+npm test             # mapper·검색/필터·수집·첨부 변환·API 클라이언트(모의 서버) 테스트
 npm run typecheck && npm run lint
 ```
 
@@ -36,7 +36,9 @@ src/lib/
   source/              RecruitApiClient 인터페이스 + fixture 구현체 + 실제 API 구현체(TODO)
   collector/pipeline.ts 수집 흐름: 호출 → 정규화 → 중복 제거 → 변경·마감 갱신 → 저장
 src/app/
-  page.tsx                         목록(기관·직무·마감 상태 필터, 마감 임박 순)
+  page.tsx                         목록(제목·기관명 검색, 기관·직무·마감 상태 필터, 마감 임박 순)
+  institutions/                    기관별 공고 모아보기
+  sitemap.ts, robots.ts            검색엔진용(샘플 모드는 차단)
   postings/[id]/page.tsx           상세(지원하기, 출처·원문 기준 안내, 요약, 공고문 열람)
   api/attachments/[postingId]/[index]/route.ts  첨부 열람용 같은 출처 엔드포인트
 src/components/
@@ -54,10 +56,16 @@ docs/hwp-conversion-check.md  HWP 변환 도구 점검 결과
 ## 수집기
 
 ```bash
-npx tsx scripts/collect.ts                 # fixture → data/postings.json
-npx tsx scripts/collect.ts --dry-run       # 저장 없이 통계만
-npx tsx scripts/collect.ts --source live   # 실제 API: 아직 미구현(DataGoKrRecruitClient TODO)
+npx tsx scripts/collect.ts                         # fixture → data/postings.json
+npx tsx scripts/collect.ts --dry-run               # 저장 없이 통계만
+npx tsx scripts/collect.ts --attachments           # 공고문 첨부 변환·저장(data/attachments/, /files 로 서빙)
+npx tsx scripts/collect.ts --source live           # 실제 API (DATA_GO_KR_KEY 필요, .env.local 자동 로드)
+bash scripts/fetch-hwp-fixtures.sh                 # HWP 변환 테스트용 샘플 받기(커밋 안 함)
 ```
+
+- 첨부 변환: `src/lib/pipeline/attachments/` (매직넘버 감지 → PDF/이미지 통과, HWP 는 pyhwp → LibreOffice, 실패 시 H2Orestart, HWPX 는 H2Orestart → pdftotext). 도구 설치는 `.github/workflows/collect.yml` 참고.
+- API 클라이언트: `src/lib/source/dataGoKrClient.ts`. 미확인 경로·파라미터는 `dataGoKrConfig.ts` 한 곳에 있다.
+- 배포 점검: `docs/DEPLOY.md`, 잡알리오 관찰: `docs/alio-observation.md`.
 
 - 서비스키는 `DATA_GO_KR_KEY` 환경변수에서만 읽는다. 클라이언트의 private 필드에 두고, 모든 출력은 `redactKey()` 를 거친다.
 - `--max-calls`(기본 300)로 개발계정의 일일 1,000건 한도를 보호한다.
@@ -66,6 +74,6 @@ npx tsx scripts/collect.ts --source live   # 실제 API: 아직 미구현(DataGo
 ## 실제 응답을 받은 뒤 할 일
 
 1. `src/lib/mapper.ts` 상단의 ⚠️ 1~12 를 실제 응답과 대조해서 `FIELD`, `*_KEYS`, `ATTACHMENT_URL_BASE`, `unwrapDetail()` 을 고친다.
-2. 실제 응답 몇 건을 `data/sample/raw/` 형식으로 저장해서 `mapper.test.ts` 에 회귀 테스트로 추가한다(키는 지운 상태로).
-3. `src/lib/attachments.ts` 의 `ALLOWED_ATTACHMENT_HOSTS` 를 실제 첨부 호스트로 확정한다.
-4. `src/lib/source/dataGoKrClient.ts` 의 TODO 를 구현한다. 상세 경로·파라미터명을 확인해야 한다.
+2. `src/lib/source/dataGoKrConfig.ts` 의 ⚠️(상세 경로 `detail`, 파라미터명 `sn`)를 확인한다.
+3. 실제 응답 몇 건을 `data/sample/raw/` 형식으로 저장해서 `mapper.test.ts` 에 회귀 테스트로 추가한다(키는 지운 상태로).
+4. `src/lib/attachments.ts` 의 `ALLOWED_ATTACHMENT_HOSTS` 를 API 응답의 실제 첨부 호스트로 확정한다.
