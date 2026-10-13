@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test \"src/**/*.test.ts\"",
-    "sample-docs": "python3 scripts/make-sample-docs.py"
+    "sample-docs": "python3 scripts/make-sample-docs.py",
+    "collect:dry": "tsx scripts/collect.ts --dry-run"
   },
   "dependencies": {
     "next": "^16.4.0",
