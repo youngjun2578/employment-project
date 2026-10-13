@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { SampleBanner } from "@/components/SampleBanner";
 import { DATA_SOURCE_LABEL, SITE_NAME, SITE_URL, USE_SAMPLE } from "@/lib/config";
+import "./tokens.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <body>
+        <a className="skip-link" href="#main">본문으로 건너뛰기</a>
         <SampleBanner />
         <header className="site-header">
           <div className="container">
@@ -28,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <span className="tagline">공공기관·공기업 채용공고 모음</span>
           </div>
         </header>
-        <main className="container">{children}</main>
+        <main id="main" className="container">{children}</main>
         <footer className="site-footer">
           <div className="container">
             <p>데이터 출처: {DATA_SOURCE_LABEL}. 공고의 수정·변경 사항은 각 기관 원문 공고를 기준으로 합니다.</p>

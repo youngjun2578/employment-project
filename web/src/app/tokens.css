@@ -1,0 +1,94 @@
+/*
+ * 디자인 토큰. 색 대비는 scripts/check-contrast.mjs 로 검증한다(WCAG AA: 본문 4.5:1, 큰 글자·UI 3:1).
+ * 모바일(375px) 기준으로 정하고, 데스크톱은 미디어쿼리에서 일부만 키운다.
+ */
+:root {
+  /* ── 기본색: 진한 파랑 ── */
+  --color-primary: #1d4ed8;
+  --color-primary-strong: #1e3a8a;
+  --color-primary-ink: #ffffff;
+  --color-primary-soft: #eaf0fd;
+  --color-primary-line: #c3d3f7;
+  --color-header: #0f2557;
+
+  /* ── 배경·표면·테두리 ── */
+  --color-bg: #f3f5f9;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f7f8fb;
+  --color-border: #dfe4ec;
+  --color-border-strong: #b9c2d0; /* 장식용 구분선·hover. 조작 요소 경계에는 쓰지 않음 */
+  --color-border-input: #808a9c; /* 입력창·선택 상자 경계: 흰 배경 3:1 이상(WCAG 1.4.11) */
+
+  /* ── 글자 3단계 ── */
+  --color-text: #111827;
+  --color-text-2: #374151;
+  --color-text-3: #5b6472;
+
+  /* ── 마감 상태 (글자 라벨과 함께 쓴다. 색만으로 구분하지 않음) ── */
+  --status-open-fg: #1e40af;
+  --status-open-bg: #e6edfc;
+  --status-urgent-fg: #b42318;
+  --status-urgent-bg: #fdeceb;
+  --status-upcoming-fg: #7a4500;
+  --status-upcoming-bg: #fbf0d9;
+  --status-closed-fg: #4b5563;
+  --status-closed-bg: #eceff3;
+  --status-unknown-fg: #374151;
+  --status-unknown-bg: #eef1f5;
+
+  /* ── 기타 의미색 ── */
+  --color-warn-bg: #fff7e0;
+  --color-warn-line: #e9c46a;
+  --color-warn-fg: #6b4a00;
+  --color-focus: #2563eb;
+
+  /* ── 간격(4px 단위) ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --gutter: 16px;
+
+  /* ── 모서리·그림자 ── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(15, 37, 87, 0.06);
+  --shadow-md: 0 4px 16px rgba(15, 37, 87, 0.08);
+  --shadow-bar: 0 -4px 16px rgba(15, 37, 87, 0.1);
+
+  /* ── 글자 크기 위계 (모바일 본문 16px 이상) ── */
+  --fs-caption: 14px; /* 보조 정보(날짜 출처 등). 본문에는 쓰지 않음 */
+  --fs-body: 16px;
+  --fs-body-lg: 17px;
+  --fs-title-sm: 18px; /* 카드 제목 */
+  --fs-title: 20px; /* 섹션 제목 */
+  --fs-h1: 24px; /* 페이지 제목 */
+  --fs-stat: 28px; /* 요약 숫자 */
+  --lh-tight: 1.35;
+  --lh-body: 1.65;
+  --fw-medium: 500;
+  --fw-bold: 700;
+
+  /* ── 터치 대상 ── */
+  --touch: 44px;
+
+  --maxw: 1080px;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans CJK KR",
+    "Malgun Gothic", "맑은 고딕", "Segoe UI", Roboto, sans-serif;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 24px;
+    --fs-h1: 28px;
+    --fs-title: 21px;
+    --fs-stat: 32px;
+  }
+}
