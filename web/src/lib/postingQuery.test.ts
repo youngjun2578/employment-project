@@ -25,3 +25,16 @@ test("필터: 기관, 직무, 상태", () => {
   assert.deepEqual(queryPostings(all, { now, status: "active" }).map((p) => p.id), ["a", "b"]);
   assert.deepEqual(queryPostings(all, { now, status: "closed" }).map((p) => p.id), ["c"]);
 });
+
+test("검색: 제목·기관명, 여러 단어, 공백·기호·대소문자 무시", () => {
+  const a = { ...mk("a", "2026-10-20", "샘플공사 A"), title: "[샘플] 2026년 하반기 신입사원 공개채용" };
+  const b = { ...mk("b", "2026-10-20", "샘플공단 B"), title: "체험형 청년인턴 모집" };
+  const ids = (q: string) => queryPostings([a, b], { now, q }).map((p) => p.id);
+  assert.deepEqual(ids("신입"), ["a"]);
+  assert.deepEqual(ids("샘플공단"), ["b"]);
+  assert.deepEqual(ids("샘플 공단 인턴"), ["b"]);
+  assert.deepEqual(ids("하반기 공개 채용"), ["a"]);
+  assert.deepEqual(ids("공사 a"), ["a"]);
+  assert.deepEqual(ids("   "), ["a", "b"]);
+  assert.deepEqual(ids("없는말"), []);
+});

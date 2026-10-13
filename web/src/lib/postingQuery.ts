@@ -1,8 +1,26 @@
 import { daysLeft, deadlineStatus } from "./dates";
 import type { Posting, PostingFilter } from "./types";
 
+/** 검색용 정규화: 소문자, 공백·일부 기호 제거 */
+function norm(s: string): string {
+  return s.normalize("NFC").toLowerCase().replace(/[\s·.,()\[\]{}「」『』_\-/]+/g, "");
+}
+
+export function matchesQuery(p: Posting, q: string | undefined): boolean {
+  const words = (q ?? "").trim().split(/\s+/).map(norm).filter(Boolean).slice(0, 10);
+  if (!words.length) return true;
+  const hay = norm(`${p.title} ${p.institution.name}`);
+  return words.every((w) => hay.includes(w));
+}
+
+/** 기관 페이지 주소용 키: 기관코드가 있으면 코드, 없으면 기관명 */
+export function institutionSlug(p: Pick<Posting, "institution">): string {
+  return p.institution.code ?? p.institution.name;
+}
+
 export function matchesFilter(p: Posting, f: PostingFilter = {}): boolean {
   const now = f.now ?? new Date();
+  if (!matchesQuery(p, f.q)) return false;
   if (f.institution && p.institution.name !== f.institution) return false;
   if (f.jobField && !p.jobFields.includes(f.jobField)) return false;
   if (f.status) {

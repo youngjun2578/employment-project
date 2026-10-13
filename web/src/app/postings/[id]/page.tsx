@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { NcsPromo } from "@/components/NcsPromo";
 import { NoticeSection } from "@/components/NoticeSection";
 import { DDay, StatusBadge } from "@/components/StatusBadge";
-import { DATA_SOURCE_LABEL } from "@/lib/config";
-import { formatDate } from "@/lib/dates";
+import { DATA_SOURCE_LABEL, OG_BASE } from "@/lib/config";
+import { dDayLabel, deadlineStatus, formatDate } from "@/lib/dates";
+import { institutionSlug } from "@/lib/postingQuery";
 import { getRepository } from "@/lib/repository";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +15,25 @@ type Params = Promise<{ id: string }>;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const p = await getRepository().get(decodeURIComponent((await params).id));
-  return { title: p ? `${p.title} - ${p.institution.name}` : "공고를 찾을 수 없음" };
+  if (!p) return { title: "공고를 찾을 수 없음", robots: { index: false } };
+  const closed = deadlineStatus(p.startDate, p.endDate) === "closed";
+  const parts = [
+    `${p.institution.name} 채용공고`,
+    `접수 ${formatDate(p.startDate)}~${formatDate(p.endDate)}${closed ? "(마감)" : ""}`,
+    p.regions.length ? `근무지 ${p.regions.join(", ")}` : null,
+    p.hireTypes.length ? p.hireTypes.join(", ") : null,
+    p.headcount ? `${p.headcount}명` : null,
+  ].filter(Boolean);
+  const description = `${parts.join(" · ")}. 공고문을 사이트에서 바로 열람하고 기관 채용 페이지로 지원하세요.`.slice(0, 160);
+  const url = `/postings/${encodeURIComponent(p.id)}`;
+  const title = `${p.title} - ${p.institution.name}`;
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: { ...OG_BASE, title, description, url, type: "article" },
+    twitter: { card: "summary", title, description },
+  };
 }
 
 export default async function PostingPage({ params }: { params: Params }) {
@@ -33,7 +53,9 @@ export default async function PostingPage({ params }: { params: Params }) {
       <header className="detail-head">
         <div className="row">
           <StatusBadge startDate={p.startDate} endDate={p.endDate} now={now} />
-          <span className="inst">{p.institution.name}</span>
+          <Link className="inst inst-link" href={`/institutions/${encodeURIComponent(institutionSlug(p))}`}>
+            {p.institution.name}
+          </Link>
           <DDay endDate={p.endDate} now={now} />
         </div>
         <h1>{p.title}</h1>
@@ -57,7 +79,10 @@ export default async function PostingPage({ params }: { params: Params }) {
         <h2 id="summary-h">요약 정보</h2>
         <dl className="summary-grid">
           <dt>접수기간</dt>
-          <dd>{formatDate(p.startDate)} ~ {formatDate(p.endDate)}</dd>
+          <dd>
+            {formatDate(p.startDate)} ~ {formatDate(p.endDate)}
+            {p.endDate && <span className={`dday-inline dday-${deadlineStatus(p.startDate, p.endDate, now)}`}>{dDayLabel(p.endDate, now)}</span>}
+          </dd>
           <dt>직무·인원</dt>
           <dd>{jobLine || "정보 없음"}</dd>
           {p.hireTypes.length > 0 || p.recruitType ? (
@@ -103,6 +128,8 @@ export default async function PostingPage({ params }: { params: Params }) {
       </section>
 
       <NoticeSection posting={p} />
+
+      <NcsPromo />
     </article>
   );
 }

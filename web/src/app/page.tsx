@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FilterForm } from "@/components/FilterForm";
 import { PostingCard } from "@/components/PostingCard";
 import { STATUS_OPTIONS } from "@/components/StatusBadge";
@@ -14,6 +15,7 @@ const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) 
 
 export default async function Home({ searchParams }: { searchParams: SP }) {
   const sp = await searchParams;
+  const q = one(sp.q).trim().slice(0, 100);
   const institution = one(sp.inst);
   const jobField = one(sp.job);
   const statusRaw = one(sp.status) || "all";
@@ -22,6 +24,7 @@ export default async function Home({ searchParams }: { searchParams: SP }) {
   const repo = getRepository();
   const now = new Date();
   const filter: PostingFilter = {
+    q: q || undefined,
     institution: institution || undefined,
     jobField: jobField || undefined,
     status: status === "all" ? undefined : (status as PostingFilter["status"]),
@@ -36,12 +39,15 @@ export default async function Home({ searchParams }: { searchParams: SP }) {
       <p className="page-sub">마감이 가까운 순으로 보여줍니다. 마감된 공고는 목록 아래쪽에 따로 표시됩니다.</p>
       <FilterForm
         // 쿼리가 바뀌면(초기화 포함) select 의 defaultValue 를 다시 반영하도록 재마운트
-        key={`${institution}|${jobField}|${status}`}
+        key={`${q}|${institution}|${jobField}|${status}`}
         institutions={options.institutions}
         jobFields={options.jobFields}
-        value={{ institution, jobField, status }}
+        value={{ q, institution, jobField, status }}
       />
-      <p className="result-count" aria-live="polite">총 <strong>{postings.length}</strong>건</p>
+      <p className="result-count" aria-live="polite">
+        {q && <>‘{q}’ 검색 결과 </>}총 <strong>{postings.length}</strong>건
+        <Link className="inline-link" href="/institutions">기관별로 보기</Link>
+      </p>
       {postings.length === 0 ? (
         <div className="empty">조건에 맞는 공고가 없습니다.</div>
       ) : (

@@ -1,13 +1,18 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { SampleBanner } from "@/components/SampleBanner";
-import { DATA_SOURCE_LABEL, SITE_NAME, USE_SAMPLE } from "@/lib/config";
+import { DATA_SOURCE_LABEL, SITE_NAME, SITE_URL, USE_SAMPLE } from "@/lib/config";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
   description: "공공기관·공기업 채용공고를 한곳에서 보고, 공고문을 바로 열람하세요.",
-  robots: USE_SAMPLE ? { index: false, follow: false } : undefined,
+  applicationName: SITE_NAME,
+  // 샘플 모드: 가짜 데이터가 검색엔진에 올라가지 않도록 모든 페이지 noindex
+  robots: USE_SAMPLE ? { index: false, follow: false, googleBot: { index: false, follow: false } } : { index: true, follow: true },
+  openGraph: { siteName: SITE_NAME, locale: "ko_KR", type: "website" },
+  alternates: { canonical: "/" },
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#0f2557" };

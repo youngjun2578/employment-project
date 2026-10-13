@@ -7,7 +7,7 @@ import { STATUS_OPTIONS } from "./StatusBadge";
 interface Props {
   institutions: string[];
   jobFields: string[];
-  value: { institution: string; jobField: string; status: string };
+  value: { q: string; institution: string; jobField: string; status: string };
 }
 
 /**
@@ -18,7 +18,21 @@ export function FilterForm({ institutions, jobFields, value }: Props) {
   const ref = useRef<HTMLFormElement>(null);
   const submit = () => ref.current?.requestSubmit();
   return (
-    <form ref={ref} className="filters" method="get" action="/" aria-label="공고 필터">
+    <form ref={ref} className="filters" method="get" action="/" role="search" aria-label="공고 검색과 필터">
+      <div className="search-row">
+        <label className="search-label">
+          <span className="sr-only">제목·기관명 검색</span>
+          <input
+            type="search"
+            name="q"
+            defaultValue={value.q}
+            placeholder="공고 제목이나 기관명으로 검색"
+            maxLength={100}
+            enterKeyHint="search"
+          />
+        </label>
+        <button className="btn btn-primary" type="submit">검색</button>
+      </div>
       <label>
         기관
         <select name="inst" defaultValue={value.institution} onChange={submit}>
@@ -40,7 +54,6 @@ export function FilterForm({ institutions, jobFields, value }: Props) {
         </select>
       </label>
       <div className="actions">
-        <noscript><button className="btn btn-primary" type="submit">적용</button></noscript>
         <Link className="btn btn-ghost" href="/">초기화</Link>
       </div>
     </form>

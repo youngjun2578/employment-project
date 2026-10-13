@@ -97,6 +97,8 @@ export interface StoredPosting extends Posting {
 export type DeadlineStatus = "upcoming" | "open" | "urgent" | "closed" | "unknown";
 
 export interface PostingFilter {
+  /** 제목·기관명 검색어(공백으로 나눈 모든 단어 포함, 대소문자 무시) */
+  q?: string;
   institution?: string;
   jobField?: string;
   /** "active" = 마감 전(접수예정·접수중·마감임박) */
