@@ -1,0 +1,17 @@
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+.vercel
+
+# 비밀값
+.env*.local
+.env
+
+# postinstall 이 node_modules/pdfjs-dist 에서 복사하는 파일
+public/pdfjs/
+
+# 수집기가 생성하는 정규화 결과(샘플은 predev/prebuild 에서 매번 재생성)
+data/sample/postings.json
+data/postings.json

@@ -1,0 +1,34 @@
+{
+  "name": "public-recruit-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "node scripts/copy-pdfjs.mjs",
+    "collect:sample": "tsx scripts/collect.ts --source fixture --out data/sample/postings.json",
+    "collect": "tsx scripts/collect.ts",
+    "predev": "npm run collect:sample",
+    "dev": "next dev",
+    "prebuild": "npm run collect:sample",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test \"src/**/*.test.ts\""
+  },
+  "dependencies": {
+    "next": "^16.4.0",
+    "pdfjs-dist": "^4.10.38",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  }
+}
