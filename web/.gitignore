@@ -12,6 +12,5 @@ next-env.d.ts
 # postinstall 이 node_modules/pdfjs-dist 에서 복사하는 파일
 public/pdfjs/
 
-# 수집기가 생성하는 정규화 결과(샘플은 predev/prebuild 에서 매번 재생성)
-data/sample/postings.json
+# 수집기 결과(실제 데이터). 샘플 모드에서는 쓰지 않는다
 data/postings.json

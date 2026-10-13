@@ -1,0 +1,40 @@
+{
+  "resultCode": 200,
+  "resultMsg": "성공했습니다.(샘플)",
+  "result": {
+    "recrutPblntSn": 900004,
+    "pblntInstCd": "SMPL-D",
+    "instNm": "샘플재단 D",
+    "recrutPbancTtl": "[샘플] 무기계약직(시설관리) 채용",
+    "pbancBgngYmd": "20261010",
+    "pbancEndYmd": "20261022",
+    "workRgnNmLst": "부산",
+    "ncsCdNmLst": "건설,경비.청소",
+    "hireTypeNmLst": "무기계약직",
+    "recrutSeNm": "신입+경력",
+    "recrutNope": 5,
+    "srcUrl": "",
+    "aplyQlfcCn": "1. 학력·연령 제한 없음(단, 정년 미만)\n2. 남성의 경우 병역필 또는 면제자\n3. 인사규정상 결격사유가 없는 자\n※ 샘플 데이터입니다. 실제 공고가 아닙니다.",
+    "prefCn": "취업지원대상자, 장애인 등 관련 법령에 따른 우대 (샘플)",
+    "disqlfcRsn": "국가공무원법 제33조 각 호에 해당하는 자 등 (샘플)",
+    "files": [
+      {
+        "atchType": "A",
+        "atchFileNm": "[샘플] 시설관리 채용 공고문.pdf",
+        "url": "/sample-docs/sample-notice-900004.pdf",
+        "sortNo": 1
+      }
+    ],
+    "nonatchRsn": "",
+    "steps": [
+      {
+        "recrutPbancStepNm": "서류전형",
+        "stepSn": 1
+      },
+      {
+        "recrutPbancStepNm": "면접전형",
+        "stepSn": 2
+      }
+    ]
+  }
+}

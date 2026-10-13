@@ -1,0 +1,24 @@
+{
+  "resultCode": 200,
+  "resultMsg": "성공했습니다.(샘플)",
+  "result": {
+    "recrutPblntSn": 900010,
+    "pblntInstCd": "SMPL-E",
+    "instNm": "샘플공사 E",
+    "recrutPbancTtl": "[샘플] 상시 채용(시간선택제) 인력풀 모집",
+    "pbancBgngYmd": "20260913",
+    "pbancEndYmd": "",
+    "workRgnNmLst": "광주",
+    "ncsCdNmLst": "이용.숙박.여행.오락.스포츠",
+    "hireTypeNmLst": "비정규직",
+    "recrutSeNm": "신입+경력",
+    "recrutNope": "00명",
+    "srcUrl": "javascript:void(0)",
+    "aplyQlfcCn": "1. 학력·연령 제한 없음(단, 정년 미만)\n2. 남성의 경우 병역필 또는 면제자\n3. 인사규정상 결격사유가 없는 자\n※ 샘플 데이터입니다. 실제 공고가 아닙니다.",
+    "prefCn": "취업지원대상자, 장애인 등 관련 법령에 따른 우대 (샘플)",
+    "disqlfcRsn": "국가공무원법 제33조 각 호에 해당하는 자 등 (샘플)",
+    "files": [],
+    "nonatchRsn": "",
+    "steps": []
+  }
+}

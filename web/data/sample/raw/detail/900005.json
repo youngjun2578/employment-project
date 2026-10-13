@@ -1,0 +1,33 @@
+{
+  "resultCode": 200,
+  "resultMsg": "성공했습니다.(샘플)",
+  "result": {
+    "recrutPblntSn": 900005,
+    "pblntInstCd": "SMPL-A",
+    "instNm": "샘플공사 A",
+    "recrutPbancTtl": "[샘플] 기간제 근로자(사무보조) 채용",
+    "pbancBgngYmd": "20261011",
+    "pbancEndYmd": "20261019",
+    "workRgnNmLst": "서울",
+    "ncsCdNmLst": "경영.회계.사무",
+    "hireTypeNmLst": "비정규직",
+    "recrutSeNm": "신입",
+    "recrutNope": 2,
+    "srcUrl": "https://example.com/sample-recruit/a/900005",
+    "aplyQlfcCn": "1. 학력·연령 제한 없음(단, 정년 미만)\n2. 남성의 경우 병역필 또는 면제자\n3. 인사규정상 결격사유가 없는 자\n※ 샘플 데이터입니다. 실제 공고가 아닙니다.",
+    "prefCn": "취업지원대상자, 장애인 등 관련 법령에 따른 우대 (샘플)",
+    "disqlfcRsn": "국가공무원법 제33조 각 호에 해당하는 자 등 (샘플)",
+    "files": [],
+    "nonatchRsn": "기관 홈페이지 본문에 공고 내용 게시(첨부 없음) — 샘플 문구",
+    "steps": [
+      {
+        "recrutPbancStepNm": "서류전형",
+        "stepSn": 1
+      },
+      {
+        "recrutPbancStepNm": "면접전형",
+        "stepSn": 2
+      }
+    ]
+  }
+}

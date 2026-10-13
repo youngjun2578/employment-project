@@ -4,16 +4,14 @@
   "private": true,
   "scripts": {
     "postinstall": "node scripts/copy-pdfjs.mjs",
-    "collect:sample": "tsx scripts/collect.ts --source fixture --out data/sample/postings.json",
     "collect": "tsx scripts/collect.ts",
-    "predev": "npm run collect:sample",
     "dev": "next dev",
-    "prebuild": "npm run collect:sample",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test \"src/**/*.test.ts\""
+    "test": "tsx --test \"src/**/*.test.ts\"",
+    "sample-docs": "python3 scripts/make-sample-docs.py"
   },
   "dependencies": {
     "next": "^16.4.0",
