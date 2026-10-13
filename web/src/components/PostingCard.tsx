@@ -48,9 +48,11 @@ export function PostingCard({ p, now, variant = "full", headingLevel = 3 }: {
               ? <>마감 <strong>{shortDate(p.endDate)}</strong></>
               : <>마감일 정보 없음</>}
         </span>
-        {p.endDate && (
+        {status === "upcoming" && p.startDate ? (
+          <span className="dday-pill dday-upcoming">시작 {dDayLabel(p.startDate, now)}</span>
+        ) : p.endDate ? (
           <span className={`dday-pill dday-${status}`}>{status === "closed" ? "마감됨" : dDayLabel(p.endDate, now)}</span>
-        )}
+        ) : null}
       </div>
     </Link>
   );

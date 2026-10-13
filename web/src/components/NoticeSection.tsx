@@ -10,8 +10,11 @@ export function NoticeSection({ posting }: { posting: Posting }) {
   const others = posting.attachments.filter((a) => a !== notice);
 
   return (
-    <section className="section" aria-labelledby="notice-h">
-      <h2 id="notice-h">공고문</h2>
+    <section className="section notice-section" aria-labelledby="notice-h">
+      <div className="section-heading">
+        <h2 id="notice-h">공고문</h2>
+        <p className="section-guide">첨부된 공고문을 이 페이지에서 바로 볼 수 있습니다. 내용이 다르면 기관 원문이 우선합니다.</p>
+      </div>
       {notice ? (
         <NoticeViewer attachment={notice} srcUrl={posting.srcUrl} />
       ) : (
@@ -22,7 +25,7 @@ export function NoticeSection({ posting }: { posting: Posting }) {
       )}
       {others.length > 0 && (
         <>
-          <h3 className="subhead">기타 첨부</h3>
+          <h3 className="subhead">다른 첨부 파일</h3>
           <ul className="attach-list">
             {others.map((a, i) => {
               const v = resolveView(a);

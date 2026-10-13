@@ -3,7 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { NcsPromo } from "@/components/NcsPromo";
 import { NoticeSection } from "@/components/NoticeSection";
-import { DDay, StatusBadge } from "@/components/StatusBadge";
+import { shortDate } from "@/components/format";
+import { InstitutionAvatar } from "@/components/InstitutionAvatar";
+import { StatusBadge } from "@/components/StatusBadge";
 import { DATA_SOURCE_LABEL, OG_BASE } from "@/lib/config";
 import { dDayLabel, deadlineStatus, formatDate } from "@/lib/dates";
 import { institutionSlug } from "@/lib/postingQuery";
@@ -41,93 +43,88 @@ export default async function PostingPage({ params }: { params: Params }) {
   if (!p) notFound();
   const now = new Date();
 
-  const jobLine = [
-    p.jobFields.join(", "),
-    p.headcount !== null && p.headcount > 0 ? `총 ${p.headcount}명` : null,
-  ].filter(Boolean).join(" · ");
+  const status = deadlineStatus(p.startDate, p.endDate, now);
+  const instHref = `/institutions/${encodeURIComponent(institutionSlug(p))}`;
+  const jobs = p.jobFields.length ? p.jobFields.join(", ") : null;
+  const headcount = p.headcount !== null && p.headcount > 0 ? `${p.headcount}명` : null;
 
   return (
-    <article>
-      <nav className="breadcrumb"><Link href="/">← 공고 목록</Link></nav>
+    <article className={`detail${p.srcUrl ? " has-apply-bar" : ""}`}>
+      <nav className="breadcrumb" aria-label="이동 경로"><Link href="/#list">← 공고 목록</Link></nav>
 
-      <header className="detail-head">
-        <div className="row">
+      <header className="detail-hero">
+        <Link className="detail-inst" href={instHref}>
+          <InstitutionAvatar name={p.institution.name} size="md" muted={status === "closed"} />
+          <span className="detail-inst-name">{p.institution.name}</span>
+          <span className="sr-only">기관 공고 모아보기</span>
+        </Link>
+        <h1 className="detail-title">{p.title}</h1>
+        <div className="detail-status">
           <StatusBadge startDate={p.startDate} endDate={p.endDate} now={now} />
-          <Link className="inst inst-link" href={`/institutions/${encodeURIComponent(institutionSlug(p))}`}>
-            {p.institution.name}
-          </Link>
-          <DDay endDate={p.endDate} now={now} />
+          {status === "upcoming" && p.startDate && <span className="dday-pill dday-upcoming">접수 시작 {dDayLabel(p.startDate, now)}</span>}
+          {p.endDate && <span className={`dday-pill dday-${status}`}>{status === "closed" ? "마감됨" : dDayLabel(p.endDate, now).startsWith("D-") ? `마감 ${dDayLabel(p.endDate, now)}` : dDayLabel(p.endDate, now)}</span>}
         </div>
-        <h1>{p.title}</h1>
-        <div className="apply-area">
-          {p.srcUrl ? (
-            <a className="btn btn-primary btn-lg" href={p.srcUrl} target="_blank" rel="noopener noreferrer">
+
+        <dl className="keyfacts">
+          <div className="keyfact">
+            <dt>접수기간</dt>
+            <dd>
+              {p.startDate || p.endDate ? <>{shortDate(p.startDate)} ~ {shortDate(p.endDate)}</> : "기간 정보 없음 (원문 확인)"}
+            </dd>
+          </div>
+          <div className="keyfact">
+            <dt>직무·인원</dt>
+            <dd>{[jobs, headcount].filter(Boolean).join(" · ") || "정보 없음 (공고문 참고)"}</dd>
+          </div>
+          <div className="keyfact">
+            <dt>전형절차</dt>
+            <dd>
+              {p.steps.length ? (
+                <ol className="steps">
+                  {p.steps.map((s, i) => (
+                    <li key={i}>
+                      <span className="step">{s}</span>
+                      {i < p.steps.length - 1 && <span className="arrow" aria-hidden>›</span>}
+                    </li>
+                  ))}
+                </ol>
+              ) : "정보 없음 (공고문 참고)"}
+            </dd>
+          </div>
+        </dl>
+
+        {p.srcUrl ? (
+          <div className="apply-bar">
+            <p className="apply-note" id="apply-note">기관 채용 사이트로 이동합니다. 접수 방법은 원문 기준입니다.</p>
+            <a className="btn btn-primary btn-lg apply-btn" href={p.srcUrl} target="_blank" rel="noopener noreferrer" aria-describedby="apply-note">
               지원하기 <span aria-hidden>↗</span>
-              <span className="sr-only">(기관 채용 페이지가 새 탭에서 열립니다)</span>
+              <span className="sr-only">(새 탭)</span>
             </a>
-          ) : (
-            <p className="notice-muted" role="note">원문 링크가 제공되지 않은 공고입니다.</p>
-          )}
-        </div>
-        <div className="source-note">
-          <p>출처: <strong>{p.institution.name}</strong> 채용공고 ({DATA_SOURCE_LABEL})</p>
-          <p>수정·변경 사항은 원문 기준입니다. 지원 전 반드시 기관 원문 공고를 확인하세요.</p>
-        </div>
+          </div>
+        ) : (
+          <p className="notice-muted apply-missing" role="note">원문 링크가 제공되지 않은 공고입니다. 지원 방법은 공고문을 확인해 주세요.</p>
+        )}
       </header>
 
-      <section className="section" aria-labelledby="summary-h">
-        <h2 id="summary-h">요약 정보</h2>
-        <dl className="summary-grid">
-          <dt>접수기간</dt>
-          <dd>
-            {formatDate(p.startDate)} ~ {formatDate(p.endDate)}
-            {p.endDate && <span className={`dday-inline dday-${deadlineStatus(p.startDate, p.endDate, now)}`}>{dDayLabel(p.endDate, now)}</span>}
-          </dd>
-          <dt>직무·인원</dt>
-          <dd>{jobLine || "정보 없음"}</dd>
+      <section className="section" aria-labelledby="detail-h">
+        <h2 id="detail-h">모집 요강</h2>
+        <dl className="info-list">
           {p.hireTypes.length > 0 || p.recruitType ? (
-            <>
-              <dt>고용형태</dt>
-              <dd>{[p.hireTypes.join(", "), p.recruitType].filter(Boolean).join(" · ")}</dd>
-            </>
+            <div><dt>고용형태</dt><dd>{[p.hireTypes.join(", "), p.recruitType].filter(Boolean).join(" · ")}</dd></div>
           ) : null}
-          {p.regions.length > 0 && (
-            <>
-              <dt>근무지</dt>
-              <dd>{p.regions.join(", ")}</dd>
-            </>
-          )}
-          <dt>전형절차</dt>
-          <dd>
-            {p.steps.length ? (
-              <ol className="steps">
-                {p.steps.map((s, i) => (
-                  <li key={i}>
-                    {i > 0 && <span className="arrow" aria-hidden>→</span>}
-                    <span className="step">{s}</span>
-                  </li>
-                ))}
-              </ol>
-            ) : "정보 없음 (공고문 참고)"}
-          </dd>
-          <dt>응시자격</dt>
-          <dd>{p.qualification ? <p className="pre">{p.qualification}</p> : "정보 없음 (공고문 참고)"}</dd>
-          {p.preference && (
-            <>
-              <dt>우대사항</dt>
-              <dd><p className="pre">{p.preference}</p></dd>
-            </>
-          )}
-          {p.disqualification && (
-            <>
-              <dt>결격사유</dt>
-              <dd><p className="pre">{p.disqualification}</p></dd>
-            </>
-          )}
+          {p.regions.length > 0 && <div><dt>근무지</dt><dd>{p.regions.join(", ")}</dd></div>}
+          <div><dt>응시자격</dt><dd>{p.qualification ? <p className="pre">{p.qualification}</p> : "정보 없음 (공고문 참고)"}</dd></div>
+          {p.preference && <div><dt>우대사항</dt><dd><p className="pre">{p.preference}</p></dd></div>}
+          {p.disqualification && <div><dt>결격사유</dt><dd><p className="pre">{p.disqualification}</p></dd></div>}
         </dl>
       </section>
 
       <NoticeSection posting={p} />
+
+      <aside className="source-box" aria-label="출처 안내">
+        <p>출처: <strong>{p.institution.name}</strong> 채용공고 ({DATA_SOURCE_LABEL})</p>
+        <p>수정·변경 사항은 원문 기준입니다. 지원 전 반드시 기관 원문 공고를 확인하세요.</p>
+      </aside>
 
       <NcsPromo />
     </article>
