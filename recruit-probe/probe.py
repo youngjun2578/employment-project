@@ -49,6 +49,9 @@ IMAGE_EXT = {"jpg", "jpeg", "png", "gif", "bmp", "tif", "tiff", "webp"}
 # ---------------------------------------------------------------- 키/보안
 
 def load_key():
+    v = os.environ.get("DATA_GO_KR_KEY", "").strip()
+    if v:
+        return v
     for p in (HERE / ".env.local", HERE.parent / ".env.local"):
         if p.is_file():
             for line in p.read_text(encoding="utf-8").splitlines():
@@ -57,7 +60,7 @@ def load_key():
                     v = line.split("=", 1)[1].strip().strip('"').strip("'")
                     if v:
                         return v
-    sys.exit("DATA_GO_KR_KEY 를 recruit-probe/.env.local 또는 저장소 루트 .env.local 에 넣어 주세요.")
+    sys.exit("DATA_GO_KR_KEY 를 환경변수, recruit-probe/.env.local 또는 저장소 루트 .env.local 에 넣어 주세요.")
 
 
 def redact(text, key):

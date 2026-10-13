@@ -17,7 +17,7 @@ import { defaultFetcher } from "../src/lib/pipeline/attachments/fetchers";
 import { JsonFilePostingRepository } from "../src/lib/repository/jsonFileRepository";
 import { MemoryPostingRepository } from "../src/lib/repository/memoryRepository";
 import type { RecruitApiClient } from "../src/lib/source/client";
-import { DataGoKrRecruitClient, redactKey } from "../src/lib/source/dataGoKrClient";
+import { CallBudget, DataGoKrApiError, DataGoKrRecruitClient, MissingServiceKeyError, redactKey } from "../src/lib/source/dataGoKrClient";
 import { FixtureRecruitClient } from "../src/lib/source/fixtureClient";
 
 const { values } = parseArgs({
@@ -36,9 +36,32 @@ const { values } = parseArgs({
 const log = (msg: string) => console.log(redactKey(msg));
 
 async function main() {
+  // web/.env.local 이 있으면 읽는다(이미 있는 환경변수는 덮어쓰지 않음). 값은 출력하지 않는다
+  try {
+    process.loadEnvFile(path.resolve(process.cwd(), ".env.local"));
+  } catch {
+    /* 파일 없음 */
+  }
   let client: RecruitApiClient;
   if (values.source === "fixture") client = new FixtureRecruitClient();
-  else if (values.source === "live") client = new DataGoKrRecruitClient();
+  else if (values.source === "live") {
+    if (!process.env.DATA_GO_KR_KEY) {
+      console.error(
+        "실제 API 수집에는 서비스키가 필요합니다.\n" +
+          "  1) 공공데이터포털에서 「재정경제부_공공기관 채용정보 조회서비스」 활용신청\n" +
+          "  2) web/.env.local 또는 셸 환경변수에 DATA_GO_KR_KEY=<Decoding 키> 설정 (커밋 금지)\n" +
+          "  3) 다시 실행: npx tsx scripts/collect.ts --source live",
+      );
+      process.exit(2);
+    }
+    client = new DataGoKrRecruitClient({
+      // 모의 서버 시험용. 운영에서는 설정하지 않는다(기본: dataGoKrConfig.ts 의 baseUrl)
+      baseUrl: process.env.DATA_GO_KR_BASE_URL || undefined,
+      // 일일 호출 수를 실행 간에도 누적해 개발계정 한도(1,000건)를 보호한다
+      budget: new CallBudget(Number(process.env.DATA_GO_KR_DAILY_LIMIT ?? 300), path.resolve(process.cwd(), "data/.api-usage.json")),
+      log,
+    });
+  }
   else throw new Error(`알 수 없는 source: ${values.source} (fixture | live)`);
 
   const outPath = path.resolve(process.cwd(), values.out!);
@@ -70,6 +93,12 @@ async function main() {
 }
 
 main().catch((e: unknown) => {
-  console.error(redactKey(e instanceof Error ? `${e.name}: ${e.message}` : String(e)));
+  if (e instanceof DataGoKrApiError) {
+    console.error(redactKey(`API 오류[${e.kind}${e.code ? `/${e.code}` : ""}]: ${e.message}`));
+  } else if (e instanceof MissingServiceKeyError) {
+    console.error(e.message);
+  } else {
+    console.error(redactKey(e instanceof Error ? `${e.name}: ${e.message}` : String(e)));
+  }
   process.exit(1);
 });

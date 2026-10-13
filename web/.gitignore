@@ -20,3 +20,6 @@ data/attachments/
 
 # 테스트용 외부 샘플(AGPL 등 라이선스 문제로 커밋 안 함). scripts/fetch-hwp-fixtures.sh 로 받음
 test-fixtures/
+
+# 수집기 일일 호출 수 기록
+data/.api-usage.json

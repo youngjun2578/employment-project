@@ -107,6 +107,8 @@ export async function collect(opts: CollectOptions): Promise<CollectStats> {
     if (canCall()) {
       stats.calls++;
       detail = await client.fetchDetail(listOnly.sourceSn).catch((e: unknown) => {
+        // 인증·한도 오류는 다음 호출도 실패하므로 즉시 중단(이번 수집은 저장하지 않음)
+        if ((e as { fatal?: boolean }).fatal) throw e;
         log(`상세 실패(${listOnly.sourceSn}): ${e instanceof Error ? e.message : String(e)}`);
         return null;
       });
