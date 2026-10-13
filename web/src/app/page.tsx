@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { EmptyState } from "@/components/EmptyState";
-import { FilterBar } from "@/components/FilterBar";
+import { FreshStrip, SummaryStats, UrgentStrip } from "@/components/HomeSummary";
+import { summarize } from "@/components/homeSummary";
+import { shortDate } from "@/components/format";
+import { FilterBar, SearchBox } from "@/components/FilterBar";
 import { listHref, type ListParams } from "@/components/filterUrl";
 import { PostingCard } from "@/components/PostingCard";
 import { STATUS_OPTIONS } from "@/components/StatusBadge";
-import { deadlineStatus } from "@/lib/dates";
+import { deadlineStatus, todayKst } from "@/lib/dates";
 import { getRepository } from "@/lib/repository";
 import type { PostingFilter } from "@/lib/types";
 
@@ -33,18 +36,44 @@ export default async function Home({ searchParams }: { searchParams: SP }) {
     status: status === "all" ? undefined : (status as PostingFilter["status"]),
     now,
   };
-  const [postings, options] = await Promise.all([repo.list(filter), repo.filterOptions()]);
+  const filtered = !!(q || institution || jobField || status !== "all");
+  const [postings, options, all] = await Promise.all([
+    repo.list(filter),
+    repo.filterOptions(),
+    filtered ? Promise.resolve(null) : repo.list({ now }),
+  ]);
+  // 요약은 조건 없이 첫 화면에 들어왔을 때만 (검색·필터 중에는 결과를 먼저 보여준다)
+  const summary = all ? summarize(all, now) : null;
+  const today = todayKst(now);
   const firstClosed = postings.findIndex((p) => deadlineStatus(p.startDate, p.endDate, now) === "closed");
   const open = firstClosed === -1 ? postings : postings.slice(0, firstClosed);
   const closed = firstClosed === -1 ? [] : postings.slice(firstClosed);
-  const filtered = !!(q || institution || jobField || status !== "all");
 
   return (
     <>
+      <div className="home-hero">
+        <h1 className="page-title">공공기관 채용공고</h1>
+        <p className="page-sub">{shortDate(today)} 기준</p>
+        <SearchBox value={params} />
+      </div>
+
+      {summary && (summary.total === 0 ? (
+        <EmptyState title="아직 수집된 공고가 없습니다">
+          <p>공고를 모으는 중입니다. 잠시 후 다시 확인해 주세요.</p>
+        </EmptyState>
+      ) : (
+        <>
+          <SummaryStats s={summary} today={today} />
+          <UrgentStrip s={summary} now={now} />
+          <FreshStrip s={summary} now={now} />
+        </>
+      ))}
+
+      {summary?.total !== 0 && (
       <section id="list" className="list-section" aria-labelledby="list-h">
-        <div className="section-head">
-          <h1 id="list-h" className="page-title">공공기관 채용공고</h1>
-          <p className="page-sub">마감이 가까운 순으로 보여줍니다.</p>
+        <div className="block-head">
+          <h2 id="list-h" className="section-title">{filtered ? "찾은 공고" : "전체 공고"}</h2>
+          <p className="block-sub">마감이 가까운 순, 마감된 공고는 아래쪽</p>
         </div>
 
         <FilterBar value={params} institutions={options.institutions} jobFields={options.jobFields} />
@@ -78,7 +107,7 @@ export default async function Home({ searchParams }: { searchParams: SP }) {
             )}
             {closed.length > 0 && (
               <>
-                <h2 className="group-title">마감된 공고 <span className="group-count">{closed.length}건</span></h2>
+                <h3 className="group-title">마감된 공고 <span className="group-count">{closed.length}건</span></h3>
                 <ul className="card-grid">
                   {closed.map((p) => <li key={p.id}><PostingCard p={p} now={now} /></li>)}
                 </ul>
@@ -87,6 +116,7 @@ export default async function Home({ searchParams }: { searchParams: SP }) {
           </>
         )}
       </section>
+      )}
     </>
   );
 }

@@ -18,8 +18,27 @@ const QUICK_STATUS: { value: string; label: string }[] = [
   { value: "closed", label: "마감" },
 ];
 
+/** 상단 검색창. 현재 적용된 기관·직무·상태 조건은 유지한 채 검색한다 */
+export function SearchBox({ value }: { value: ListParams }) {
+  return (
+    <form className="searchbox" method="get" action="/#list" role="search" aria-label="공고 검색">
+      <label htmlFor="q" className="sr-only">공고 제목이나 기관명으로 검색</label>
+      <svg className="searchbox-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
+        <path d="M20 20l-4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+      <input id="q" className="searchbox-input" type="search" name="q" defaultValue={value.q}
+        placeholder="공고 제목, 기관명 검색" maxLength={100} enterKeyHint="search" autoComplete="off" />
+      {value.inst && <input type="hidden" name="inst" value={value.inst} />}
+      {value.job && <input type="hidden" name="job" value={value.job} />}
+      {value.status !== "all" && <input type="hidden" name="status" value={value.status} />}
+      <button className="btn btn-primary searchbox-btn" type="submit">검색</button>
+    </form>
+  );
+}
+
 /**
- * 검색 + 상태 칩(가로 스크롤) + 접이식 상세 필터 + 적용된 필터 표시.
+ * 상태 칩(가로 스크롤) + 접이식 상세 필터 + 적용된 필터 표시.
  * 모두 링크·GET 폼이라 JS 없이 동작하고, 상태는 URL 에 남아 공유·뒤로가기가 된다.
  */
 export function FilterBar({ value, institutions, jobFields }: Props) {
@@ -34,20 +53,6 @@ export function FilterBar({ value, institutions, jobFields }: Props) {
 
   return (
     <div className="filterbar">
-      <form className="searchbox" method="get" action="/#list" role="search" aria-label="공고 검색">
-        <label htmlFor="q" className="sr-only">공고 제목이나 기관명으로 검색</label>
-        <svg className="searchbox-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-          <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
-          <path d="M20 20l-4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-        <input id="q" className="searchbox-input" type="search" name="q" defaultValue={value.q}
-          placeholder="공고 제목, 기관명 검색" maxLength={100} enterKeyHint="search" autoComplete="off" />
-        {value.inst && <input type="hidden" name="inst" value={value.inst} />}
-        {value.job && <input type="hidden" name="job" value={value.job} />}
-        {value.status !== "all" && <input type="hidden" name="status" value={value.status} />}
-        <button className="btn btn-primary searchbox-btn" type="submit">검색</button>
-      </form>
-
       <div className="filter-row">
         <nav className="status-chips" aria-label="마감 상태로 보기">
           {QUICK_STATUS.map((s) => {
