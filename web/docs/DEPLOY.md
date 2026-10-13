@@ -34,6 +34,7 @@
 |---|---|---|---|---|
 | `NEXT_PUBLIC_USE_SAMPLE` | Vercel | 비움 또는 `true` | `false` | 빌드할 때 값이 고정된다. 바꾸면 재배포해야 한다. 샘플 모드면 배너, 전 페이지 noindex, robots 전체 차단, 빈 sitemap |
 | `NEXT_PUBLIC_SITE_URL` | Vercel | 선택 | **필수** | canonical, Open Graph, sitemap 절대 주소. 비우면 `http://localhost:3000` 이 들어간다 |
+| `SAMPLE_DATASET` | 로컬·프리뷰 | 비움 | 쓰지 않음 | `stress` 면 화면 극단 케이스 검증용 가짜 데이터(샘플 모드에서만, 서버 실행 시 읽음) |
 | `NEXT_PUBLIC_NCS_URL` | Vercel | 선택 | 선택 | 기본 `https://ncsmath.com`. utm 파라미터는 코드가 붙인다 |
 | `DATA_GO_KR_KEY` | **GitHub Secrets 만** | 불필요 | 수집기만 | **Vercel 에 넣지 않는다.** 사이트는 API 를 직접 부르지 않는다 |
 | `DATA_GO_KR_DAILY_LIMIT` | 수집기 | — | 선택 | 일일 호출 상한(기본 300) |

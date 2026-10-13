@@ -23,3 +23,6 @@ test-fixtures/
 
 # 수집기 일일 호출 수 기록
 data/.api-usage.json
+
+# 디자인 점검 스크린샷(31장, 약 4.7MB): 저장소 부담 때문에 커밋하지 않음. 목록은 docs/design/README.md
+docs/design/*.png

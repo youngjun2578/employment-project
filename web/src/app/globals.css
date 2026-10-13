@@ -194,7 +194,8 @@ main.container { padding-top: var(--space-6); min-height: 60vh; }
 /* 상태 칩: 모바일에서 가로 스크롤 (페이지 전체는 가로 스크롤 없음) */
 .status-chips {
   display: flex; gap: var(--space-2); overflow-x: auto; scrollbar-width: none;
-  margin: 0 calc(var(--gutter) * -1); padding: 2px var(--gutter) 4px; scroll-padding: 0 var(--gutter);
+  /* 위아래 6px: 스크롤 영역 안에서 포커스 링(3px+간격 2px)이 잘리지 않게 */
+  margin: -6px calc(var(--gutter) * -1); padding: 6px var(--gutter); scroll-padding: 0 var(--gutter);
 }
 .status-chips::-webkit-scrollbar { display: none; }
 .fchip {
@@ -310,7 +311,7 @@ main.container { padding-top: var(--space-6); min-height: 60vh; }
 
 /* 가로 스와이프 목록: 모바일은 카드 폭 82%로 다음 카드가 살짝 보이게 */
 .hscroll {
-  list-style: none; margin: 0 calc(var(--gutter) * -1); padding: 2px var(--gutter) var(--space-2);
+  list-style: none; margin: -6px calc(var(--gutter) * -1) 0; padding: 6px var(--gutter) var(--space-3);
   display: grid; grid-auto-flow: column; grid-auto-columns: 82%; gap: var(--space-3);
   overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 var(--gutter); scrollbar-width: thin;
   overscroll-behavior-x: contain;
@@ -461,9 +462,9 @@ body:has(.apply-bar) .site-footer { padding-bottom: calc(var(--space-10) + 96px 
   .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
   .stat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); }
   .stat { padding: var(--space-5); }
-  .hscroll { margin: 0; padding: 2px 0 var(--space-2); grid-auto-columns: calc((100% - 2 * var(--space-4)) / 3); gap: var(--space-4); }
+  .hscroll { margin: -6px -6px 0; padding: 6px 6px var(--space-3); grid-auto-columns: calc((100% - 2 * var(--space-4)) / 3); gap: var(--space-4); }
   .filter-row { flex-direction: row; align-items: flex-start; gap: var(--space-3); }
-  .status-chips { margin: 0; padding: 2px 0 4px; flex-wrap: wrap; overflow: visible; }
+  .status-chips { margin: 0; padding: 0; flex-wrap: wrap; overflow: visible; }
   .filter-panel { width: auto; flex: none; position: relative; }
   .filter-panel[open] .filter-form { position: absolute; right: 0; top: 100%; z-index: 20; width: 360px; box-shadow: var(--shadow-md); }
   .pcard { padding: var(--space-5); }
