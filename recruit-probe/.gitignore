@@ -1,0 +1,4 @@
+.env.local
+# 내려받은 첨부 원본(용량·저작권 문제로 커밋하지 않음). 형식 확인 결과는 samples/download_report.json 에 남긴다.
+samples/attachments/
+__pycache__/

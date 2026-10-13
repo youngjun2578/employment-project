@@ -1,0 +1,4 @@
+# 비밀값: 서비스키(DATA_GO_KR_KEY) 등
+.env.local
+**/.env.local
+.env*.local
