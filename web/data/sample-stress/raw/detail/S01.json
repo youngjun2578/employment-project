@@ -1,0 +1,66 @@
+{
+  "resultCode": 200,
+  "resultMsg": "검증용 가짜 데이터",
+  "result": {
+    "recrutPblntSn": "S01",
+    "pblntInstCd": "STRESS-01",
+    "instNm": "샘플 가상산업기술진흥재단 부설 미래첨단융합연구원 지역협력지원센터 (가짜 기관명 길이 시험)",
+    "recrutPbancTtl": "[샘플·검증] 2026년도 하반기 정규직(일반행정·전산·시설·연구) 및 무기계약직(사무보조·환경미화) 신입·경력 공개경쟁 채용 및 청년인턴(체험형) 동시 모집 공고 (재공고, 접수기간 연장 안내 포함)",
+    "pbancBgngYmd": "20261010",
+    "pbancEndYmd": "20261015",
+    "workRgnNmLst": "서울,인천,경기,강원,충북,충남,대전,세종,전북,전남,광주",
+    "ncsCdNmLst": "경영.회계.사무,정보통신,건설,기계,전기.전자,환경.에너지.안전,연구,사업관리,법률.경찰.소방.교도.국방,보건.의료",
+    "hireTypeNmLst": "정규직,무기계약직,청년인턴(체험형)",
+    "recrutSeNm": "신입+경력",
+    "recrutNope": "1,250명",
+    "srcUrl": "https://example.com/sample-stress/s01",
+    "aplyQlfcCn": "<p>1. 학력·연령 제한 없음 (샘플)</p><p>2. 아주긴단어가포함된응시자격문장예시입니다띄어쓰기없이계속이어집니다https://example.com/qualification/very/long/link</p>",
+    "steps": [
+      {
+        "recrutPbancStepNm": "서류전형",
+        "stepSn": 1
+      },
+      {
+        "recrutPbancStepNm": "인성검사",
+        "stepSn": 2
+      },
+      {
+        "recrutPbancStepNm": "필기전형(NCS)",
+        "stepSn": 3
+      },
+      {
+        "recrutPbancStepNm": "직무역량평가",
+        "stepSn": 4
+      },
+      {
+        "recrutPbancStepNm": "1차 면접(PT)",
+        "stepSn": 5
+      },
+      {
+        "recrutPbancStepNm": "2차 면접(인성)",
+        "stepSn": 6
+      },
+      {
+        "recrutPbancStepNm": "신원조회",
+        "stepSn": 7
+      },
+      {
+        "recrutPbancStepNm": "신체검사",
+        "stepSn": 8
+      },
+      {
+        "recrutPbancStepNm": "최종합격",
+        "stepSn": 9
+      }
+    ],
+    "files": [
+      {
+        "atchType": "A",
+        "atchFileNm": "[샘플] 매우 긴 첨부 파일 이름으로 줄바꿈과 말줄임 동작을 확인하기 위한 검증용 가짜 공고문 파일명입니다.hwpx",
+        "url": "/sample-docs/missing-stress.hwpx",
+        "sortNo": 1
+      }
+    ],
+    "nonatchRsn": ""
+  }
+}

@@ -1,5 +1,5 @@
 import path from "node:path";
-import { USE_SAMPLE } from "../config";
+import { sampleDataset, USE_SAMPLE } from "../config";
 import { JsonFilePostingRepository } from "./jsonFileRepository";
 import { SamplePostingRepository } from "./sampleRepository";
 import type { PostingRepository } from "./types";
@@ -13,6 +13,10 @@ let repo: PostingRepository | null = null;
 
 /** 서버 전용. 샘플 모드 여부에 따라 구현체를 고른다 */
 export function getRepository(): PostingRepository {
-  repo ??= USE_SAMPLE ? new SamplePostingRepository() : new JsonFilePostingRepository(POSTINGS_FILE);
+  repo ??= USE_SAMPLE
+    ? new SamplePostingRepository(
+        sampleDataset() === "stress" ? path.join(process.cwd(), "data", "sample-stress", "raw") : undefined,
+      )
+    : new JsonFilePostingRepository(POSTINGS_FILE);
   return repo;
 }

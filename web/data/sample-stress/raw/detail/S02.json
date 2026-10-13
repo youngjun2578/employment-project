@@ -1,0 +1,22 @@
+{
+  "resultCode": 200,
+  "resultMsg": "검증용 가짜 데이터",
+  "result": {
+    "recrutPblntSn": "S02",
+    "pblntInstCd": "STRESS-02",
+    "instNm": "3D샘플프린팅공사",
+    "recrutPbancTtl": "[샘플] 접수기간 정보가 없는 공고(상시 모집)",
+    "pbancBgngYmd": "",
+    "pbancEndYmd": "",
+    "workRgnNmLst": "",
+    "ncsCdNmLst": "",
+    "hireTypeNmLst": "",
+    "recrutSeNm": "",
+    "recrutNope": "",
+    "srcUrl": "",
+    "aplyQlfcCn": "",
+    "steps": [],
+    "files": [],
+    "nonatchRsn": ""
+  }
+}

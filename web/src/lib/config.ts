@@ -4,6 +4,14 @@
  */
 export const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE !== "false";
 
+/**
+ * 샘플 모드에서 쓸 가짜 데이터 묶음(서버 전용, 실행 시점에 읽음).
+ * "stress" 면 화면 극단 케이스 검증용 data/sample-stress/raw 를 쓴다. 기본 샘플과 섞지 않는다.
+ */
+export function sampleDataset(): "default" | "stress" {
+  return process.env.SAMPLE_DATASET === "stress" ? "stress" : "default";
+}
+
 export const SITE_NAME = "공공채용 모아보기";
 export const DATA_SOURCE_LABEL = "알리오 공공기관 채용정보(공공데이터포털)";
 

@@ -20,7 +20,14 @@ npm run typecheck && npm run lint
 | 없음 또는 `true` | `data/sample/raw/` 가짜 응답 → 수집 파이프라인 → 메모리 | 상단 "샘플 데이터" 배너 표시, 검색엔진 noindex |
 | `false` | `data/postings.json` (수집기 결과, 없으면 0건) | 없음 |
 
-`.env.local` 에 적는다(`.env.example` 참고). `NEXT_PUBLIC_` 값은 **빌드할 때 고정**되므로, 바꾼 뒤에는 `npm run build` 를 다시 하거나 dev 서버를 재시작해야 한다.
+`.env.local` 에 적는다(`.env.example` 참고).
+
+화면 극단 케이스(긴 기관명·제목, 직무 다수, 접수기간 없음, 숫자·영문 시작 기관명 등)는 별도 가짜 데이터로 확인한다. 기본 샘플에는 섞이지 않는다.
+
+```bash
+SAMPLE_DATASET=stress npm run dev     # data/sample-stress/raw 사용 (샘플 모드에서만, 배너에 표시됨)
+npm run check:contrast                # 디자인 토큰 색 대비 WCAG AA 검사
+``` `NEXT_PUBLIC_` 값은 **빌드할 때 고정**되므로, 바꾼 뒤에는 `npm run build` 를 다시 하거나 dev 서버를 재시작해야 한다.
 
 ## 구조
 

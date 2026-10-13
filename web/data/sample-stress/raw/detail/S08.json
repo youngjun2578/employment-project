@@ -1,0 +1,27 @@
+{
+  "resultCode": 200,
+  "resultMsg": "검증용 가짜 데이터",
+  "result": {
+    "recrutPblntSn": "S08",
+    "pblntInstCd": "STRESS-08",
+    "instNm": "ㄱ샘플자음기관",
+    "recrutPbancTtl": "[샘플] 기관명이 자음으로 시작",
+    "pbancBgngYmd": "20261011",
+    "pbancEndYmd": "20261026",
+    "workRgnNmLst": "제주",
+    "ncsCdNmLst": "사업관리",
+    "hireTypeNmLst": "정규직",
+    "recrutSeNm": "신입+경력",
+    "recrutNope": "2명",
+    "srcUrl": "javascript:alert(1)",
+    "aplyQlfcCn": "",
+    "steps": [
+      {
+        "recrutPbancStepNm": "서류",
+        "stepSn": 1
+      }
+    ],
+    "files": [],
+    "nonatchRsn": ""
+  }
+}

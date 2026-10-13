@@ -1,0 +1,35 @@
+{
+  "resultCode": 200,
+  "resultMsg": "검증용 가짜 데이터",
+  "result": {
+    "recrutPblntSn": "S04",
+    "pblntInstCd": "STRESS-04",
+    "instNm": "ABC샘플공단",
+    "recrutPbancTtl": "SAMPLE_VERY_LONG_ENGLISH_TOKEN_WITHOUT_ANY_SPACES_TO_TEST_OVERFLOW_WRAPPING_BEHAVIOR_IN_CARDS https://example.com/very/long/path/that/should/wrap/inside/the/card/and/not/overflow",
+    "pbancBgngYmd": "20261003",
+    "pbancEndYmd": "20261013",
+    "workRgnNmLst": "대전",
+    "ncsCdNmLst": "연구,정보통신",
+    "hireTypeNmLst": "정규직",
+    "recrutSeNm": "신입+경력",
+    "recrutNope": "1명",
+    "srcUrl": "https://example.com/sample-stress/s04",
+    "aplyQlfcCn": "",
+    "steps": [
+      {
+        "recrutPbancStepNm": "서류",
+        "stepSn": 1
+      },
+      {
+        "recrutPbancStepNm": "필기",
+        "stepSn": 2
+      },
+      {
+        "recrutPbancStepNm": "면접",
+        "stepSn": 3
+      }
+    ],
+    "files": [],
+    "nonatchRsn": ""
+  }
+}

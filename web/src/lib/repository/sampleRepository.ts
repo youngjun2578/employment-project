@@ -12,11 +12,14 @@ import type { PostingRepository } from "./types";
 export class SamplePostingRepository implements PostingRepository {
   private cache: { day: string; repo: Promise<MemoryPostingRepository> } | null = null;
 
+  /** @param dir 가짜 응답 폴더(기본 data/sample/raw) */
+  constructor(private readonly dir?: string) {}
+
   private load(): Promise<MemoryPostingRepository> {
     const day = new Date().toISOString().slice(0, 10);
     if (!this.cache || this.cache.day !== day) {
       const repo = new MemoryPostingRepository();
-      this.cache = { day, repo: collect({ client: new FixtureRecruitClient(), repo }).then(() => repo) };
+      this.cache = { day, repo: collect({ client: new FixtureRecruitClient(this.dir), repo }).then(() => repo) };
     }
     return this.cache.repo;
   }

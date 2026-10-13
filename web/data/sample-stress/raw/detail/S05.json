@@ -1,0 +1,22 @@
+{
+  "resultCode": 200,
+  "resultMsg": "검증용 가짜 데이터",
+  "result": {
+    "recrutPblntSn": "S05",
+    "pblntInstCd": "STRESS-05",
+    "instNm": "(재)가짜문화재단",
+    "recrutPbancTtl": "[샘플] 마감일만 있고 시작일이 없는 공고",
+    "pbancBgngYmd": "",
+    "pbancEndYmd": "20261017",
+    "workRgnNmLst": "부산",
+    "ncsCdNmLst": "문화.예술.디자인.방송",
+    "hireTypeNmLst": "비정규직",
+    "recrutSeNm": "신입+경력",
+    "recrutNope": "0명",
+    "srcUrl": "https://example.com/sample-stress/s05",
+    "aplyQlfcCn": "",
+    "steps": [],
+    "files": [],
+    "nonatchRsn": ""
+  }
+}

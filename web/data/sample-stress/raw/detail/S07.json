@@ -1,0 +1,31 @@
+{
+  "resultCode": 200,
+  "resultMsg": "검증용 가짜 데이터",
+  "result": {
+    "recrutPblntSn": "S07",
+    "pblntInstCd": "STRESS-07",
+    "instNm": "2026샘플엑스포조직위원회(가짜)",
+    "recrutPbancTtl": "[샘플] 접수 예정 공고 — 시작일이 미래",
+    "pbancBgngYmd": "20261019",
+    "pbancEndYmd": "20261102",
+    "workRgnNmLst": "전남,광주",
+    "ncsCdNmLst": "영업판매,이용.숙박.여행.오락.스포츠,음식서비스",
+    "hireTypeNmLst": "계약직",
+    "recrutSeNm": "신입+경력",
+    "recrutNope": "45명",
+    "srcUrl": "https://example.com/sample-stress/s07",
+    "aplyQlfcCn": "",
+    "steps": [
+      {
+        "recrutPbancStepNm": "서류",
+        "stepSn": 1
+      },
+      {
+        "recrutPbancStepNm": "면접",
+        "stepSn": 2
+      }
+    ],
+    "files": [],
+    "nonatchRsn": ""
+  }
+}

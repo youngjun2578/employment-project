@@ -1,0 +1,31 @@
+{
+  "resultCode": 200,
+  "resultMsg": "검증용 가짜 데이터",
+  "result": {
+    "recrutPblntSn": "S03",
+    "pblntInstCd": "STRESS-03",
+    "instNm": "K-샘플데이터원",
+    "recrutPbancTtl": "[샘플]띄어쓰기없이아주길게이어지는공고제목으로레이아웃이옆으로밀려나거나깨지는지확인하기위한검증용가짜공고명칭입니다끝",
+    "pbancBgngYmd": "20261012",
+    "pbancEndYmd": "20261022",
+    "workRgnNmLst": "세종",
+    "ncsCdNmLst": "정보통신",
+    "hireTypeNmLst": "계약직",
+    "recrutSeNm": "신입+경력",
+    "recrutNope": "3명",
+    "srcUrl": "https://example.com/sample-stress/s03",
+    "aplyQlfcCn": "",
+    "steps": [
+      {
+        "recrutPbancStepNm": "서류",
+        "stepSn": 1
+      },
+      {
+        "recrutPbancStepNm": "면접",
+        "stepSn": 2
+      }
+    ],
+    "files": [],
+    "nonatchRsn": ""
+  }
+}

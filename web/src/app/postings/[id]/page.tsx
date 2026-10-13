@@ -45,8 +45,11 @@ export default async function PostingPage({ params }: { params: Params }) {
 
   const status = deadlineStatus(p.startDate, p.endDate, now);
   const instHref = `/institutions/${encodeURIComponent(institutionSlug(p))}`;
-  const jobs = p.jobFields.length ? p.jobFields.join(", ") : null;
-  const headcount = p.headcount !== null && p.headcount > 0 ? `${p.headcount}명` : null;
+  // 핵심 정보에는 앞 3개만, 전체 목록은 모집 요강에
+  const jobs = p.jobFields.length
+    ? p.jobFields.slice(0, 3).join(", ") + (p.jobFields.length > 3 ? ` 외 ${p.jobFields.length - 3}개` : "")
+    : null;
+  const headcount = p.headcount !== null && p.headcount > 0 ? `${p.headcount.toLocaleString("ko-KR")}명` : null;
 
   return (
     <article className={`detail${p.srcUrl ? " has-apply-bar" : ""}`}>
@@ -95,7 +98,9 @@ export default async function PostingPage({ params }: { params: Params }) {
 
         {p.srcUrl ? (
           <div className="apply-bar">
-            <p className="apply-note" id="apply-note">기관 채용 사이트로 이동합니다. 접수 방법은 원문 기준입니다.</p>
+            <p className="apply-note" id="apply-note">
+              <span>기관 채용 사이트로 이동합니다.</span> <span>접수 방법은 원문 기준입니다.</span>
+            </p>
             <a className="btn btn-primary btn-lg apply-btn" href={p.srcUrl} target="_blank" rel="noopener noreferrer" aria-describedby="apply-note">
               지원하기 <span aria-hidden>↗</span>
               <span className="sr-only">(새 탭)</span>
@@ -109,6 +114,7 @@ export default async function PostingPage({ params }: { params: Params }) {
       <section className="section" aria-labelledby="detail-h">
         <h2 id="detail-h">모집 요강</h2>
         <dl className="info-list">
+          {p.jobFields.length > 3 && <div><dt>직무(전체)</dt><dd>{p.jobFields.join(", ")}</dd></div>}
           {p.hireTypes.length > 0 || p.recruitType ? (
             <div><dt>고용형태</dt><dd>{[p.hireTypes.join(", "), p.recruitType].filter(Boolean).join(" · ")}</dd></div>
           ) : null}

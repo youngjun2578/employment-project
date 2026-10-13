@@ -1,0 +1,22 @@
+{
+  "resultCode": 200,
+  "resultMsg": "검증용 가짜 데이터",
+  "result": {
+    "recrutPblntSn": "S06",
+    "pblntInstCd": "STRESS-06",
+    "instNm": "샘플공사 A",
+    "recrutPbancTtl": "[샘플] 짧은 제목",
+    "pbancBgngYmd": "20260903",
+    "pbancEndYmd": "20260913",
+    "workRgnNmLst": "",
+    "ncsCdNmLst": "",
+    "hireTypeNmLst": "",
+    "recrutSeNm": "",
+    "recrutNope": "",
+    "srcUrl": "https://example.com/sample-stress/s06",
+    "aplyQlfcCn": "",
+    "steps": [],
+    "files": [],
+    "nonatchRsn": ""
+  }
+}
