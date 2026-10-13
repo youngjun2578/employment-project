@@ -25,7 +25,9 @@
  *  8. 첨부 URL 이 절대경로인지 상대경로인지 → ATTACHMENT_URL_BASE.
  *  9. FIELD.noAttachmentReason `nonatchRsn` 필드명.
  * 10. srcUrl 이 기관 채용 페이지인지, 잡알리오 상세인지, 빈 값이 얼마나 흔한지 (필드 존재는 ✅).
- *     현재는 http(s) 절대 URL 만 인정하고 나머지는 null 처리한다.
+ *     현재는 http(s) 절대 URL 이면서 호스트가 정상 도메인/IP 인 것만 인정한다.
+ *     (잡알리오 화면 관찰: "공고 URL" 칸에 기관 채용 사이트 주소가 오며, "http://," 처럼 깨진 값도 있었다
+ *      → web/docs/alio-observation.md)
  * 11. 상세 응답의 감싸는 구조: `result` 가 객체인지 배열(1건)인지 → unwrapDetail().
  * 12. 날짜 필드에 시각이 붙어 오는지(YYYYMMDDhhmm 등). parseYmd() 는 앞 8자리만 쓴다.
  * ─────────────────────────────────────────────────────────────────────────────
@@ -68,8 +70,13 @@ const FILE_NAME_KEYS = ["atchFileNm", "fileNm"]; // ⚠️ 7
 const FILE_URL_KEYS = ["url", "atchFileUrl", "fileUrl"]; // ⚠️ 7
 const FILE_TYPE_KEYS = ["atchType"]; // ✅ (코드 정의서)
 const FILE_SORT_KEYS = ["sortNo"]; // ⚠️ 7
-/** 첨부 URL 이 상대경로로 올 때 붙일 기준 주소. ⚠️ 8 */
-const ATTACHMENT_URL_BASE = "https://job.alio.go.kr";
+/**
+ * 첨부 URL 이 상대경로로 올 때 붙일 기준 주소. ⚠️ 8
+ * 잡알리오 화면에서는 첨부가 https://www.alio.go.kr/download/download.json?fileNo=N 절대 URL 이었다.
+ */
+const ATTACHMENT_URL_BASE = "https://www.alio.go.kr";
+/** 샘플 데이터 전용 사이트 내부 경로 */
+const LOCAL_SAMPLE_PREFIX = "/sample-docs/";
 
 // ───────────────────────────── 방어적 읽기 도우미 ─────────────────────────────
 
@@ -141,13 +148,17 @@ export function parseHeadcount(v: unknown): number | null {
   return m ? Number(m[0]) : null;
 }
 
-/** http(s) 절대 URL 만 인정. 그 외(빈 값, "#", javascript: 등)는 null. ⚠️ 10 */
+/** 점으로 구분된 도메인 이름 또는 IPv4 인지 (WHATWG URL 은 "http://," 같은 값도 받아들인다) */
+const HOSTNAME_RE = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{2,63}|xn--[a-z0-9-]{1,59}|\d{1,3})$/i;
+
+/** http(s) 절대 URL 만 인정. 그 외(빈 값, "#", javascript:, 깨진 호스트 등)는 null. ⚠️ 10 */
 export function normalizeUrl(v: unknown, base?: string): string | null {
   const s = asString(v);
   if (!s) return null;
   try {
     const u = base ? new URL(s, base) : new URL(s);
-    return u.protocol === "http:" || u.protocol === "https:" ? u.toString() : null;
+    if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+    return HOSTNAME_RE.test(u.hostname) ? u.toString() : null;
   } catch {
     return null;
   }
@@ -195,8 +206,8 @@ function mapAttachments(raw: RawRecord, postingId: string): Attachment[] {
     const r = f as RawRecord;
     const fileName = asString(pick(r, FILE_NAME_KEYS)) ?? `첨부파일 ${i + 1}`;
     const rawUrl = asString(pick(r, FILE_URL_KEYS));
-    // 샘플 데이터처럼 사이트 내부 경로("/sample-docs/...")면 그대로 둔다
-    const sourceUrl = rawUrl?.startsWith("/") && !rawUrl.startsWith("//")
+    // 샘플 공고문("/sample-docs/...")만 사이트 내부 경로로 두고, 나머지 상대경로는 원본 사이트 기준으로 푼다
+    const sourceUrl = rawUrl?.startsWith(LOCAL_SAMPLE_PREFIX) && !rawUrl.includes("..")
       ? rawUrl
       : normalizeUrl(rawUrl, ATTACHMENT_URL_BASE);
     const sort = Number(asString(pick(r, FILE_SORT_KEYS)));

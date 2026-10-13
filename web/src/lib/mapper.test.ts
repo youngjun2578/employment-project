@@ -51,8 +51,14 @@ test("상세가 목록 값을 덮되 빈 값은 덮지 않음", () => {
 });
 
 test("srcUrl: http(s) 만 인정", () => {
-  for (const bad of ["", "#", "javascript:alert(1)", "www.example.org", " "]) {
+  for (const bad of ["", "#", "javascript:alert(1)", "www.example.org", " ", "http://,", "https://localhost/x", "http://a/"]) {
     assert.equal(toPosting({ recrutPblntSn: 1, srcUrl: bad })?.srcUrl, null, bad);
+  }
+});
+
+test("srcUrl: 정상 기관 채용 사이트 주소는 통과", () => {
+  for (const ok of ["https://agency.recruiter.co.kr/", "https://example.or.kr/content/02information/01_01.asp", "http://203.0.113.10/r"]) {
+    assert.equal(toPosting({ recrutPblntSn: 1, srcUrl: ok })?.srcUrl, new URL(ok).toString(), ok);
   }
 });
 
@@ -69,7 +75,13 @@ test("첨부: 유형·확장자·정렬·viewUrl", () => {
   assert.ok(p);
   assert.deepEqual(p.attachments.map((a) => [a.type, a.extension]), [["A", "pdf"], ["B", "hwp"], ["Z", ""]]);
   assert.equal(p.attachments[0].viewUrl, "/api/attachments/77/0");
-  assert.equal(p.attachments[1].sourceUrl, "/file/2");
+  assert.equal(p.attachments[1].sourceUrl, "https://www.alio.go.kr/file/2");
+  assert.equal(toPosting({ recrutPblntSn: 1, files: [{ atchFileNm: "a.pdf", url: "/sample-docs/a.pdf" }] })?.attachments[0].sourceUrl, "/sample-docs/a.pdf");
+  assert.equal(
+    toPosting({ recrutPblntSn: 1, files: [{ atchType: "A", atchFileNm: "a.pdf", url: "download/download.json?fileNo=1" }] })
+      ?.attachments[0].sourceUrl,
+    "https://www.alio.go.kr/download/download.json?fileNo=1",
+  );
   assert.equal(p.attachments[2].viewUrl, null);
 });
 
