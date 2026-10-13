@@ -30,3 +30,34 @@ export const ALLOWED_ATTACHMENT_HOSTS = ["www.alio.go.kr", "alio.go.kr", "job.al
 export const LOCAL_ATTACHMENT_PREFIX = "/sample-docs/";
 
 export const MAX_ATTACHMENT_BYTES = 30 * 1024 * 1024;
+
+export interface ResolvedView {
+  kind: ViewerKind;
+  url: string | null;
+  /** fallback 문구 선택용: converting(변환 대기·실패) / unsupported(열람 불가 형식) */
+  fallback: "converting" | "unsupported" | null;
+  reason: string | null;
+}
+
+/**
+ * 첨부를 화면에서 어떻게 보여줄지 결정한다.
+ * 1) 수집 단계 변환 결과(conversion)가 있으면 그것을 따른다.
+ * 2) 없으면(샘플 모드, 변환 전) 확장자로 판단해 원본 프록시 URL(viewUrl)을 쓴다.
+ */
+export function resolveView(a: {
+  extension: string;
+  viewUrl: string | null;
+  conversion?: { status: string; viewFormat: string; viewUrl: string | null; reason: string | null } | null;
+}): ResolvedView {
+  const c = a.conversion;
+  if (c) {
+    if (c.status === "success" && c.viewUrl && (c.viewFormat === "pdf" || c.viewFormat === "image")) {
+      return { kind: c.viewFormat, url: c.viewUrl, fallback: null, reason: null };
+    }
+    return { kind: "unsupported", url: null, fallback: c.status === "unsupported" ? "unsupported" : "converting", reason: c.reason };
+  }
+  const kind = a.viewUrl ? viewerKind(a.extension) : "unsupported";
+  return kind === "unsupported"
+    ? { kind, url: null, fallback: "converting", reason: null }
+    : { kind, url: a.viewUrl, fallback: null, reason: null };
+}

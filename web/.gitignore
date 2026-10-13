@@ -14,3 +14,9 @@ public/pdfjs/
 
 # 수집기 결과(실제 데이터). 샘플 모드에서는 쓰지 않는다
 data/postings.json
+
+# 변환 결과 저장소(로컬 구현체)
+data/attachments/
+
+# 테스트용 외부 샘플(AGPL 등 라이선스 문제로 커밋 안 함). scripts/fetch-hwp-fixtures.sh 로 받음
+test-fixtures/

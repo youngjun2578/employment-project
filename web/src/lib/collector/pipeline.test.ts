@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { AttachmentPipeline, LocalFileAttachmentStore } from "../pipeline/attachments";
+import { localSampleFetcher } from "../pipeline/attachments/fetchers";
 import { MemoryPostingRepository } from "../repository/memoryRepository";
 import type { ListQuery, RecruitApiClient } from "../source/client";
 import { collect } from "./pipeline";
@@ -70,4 +75,31 @@ test("호출 상한을 넘지 않음", async () => {
   assert.equal(client.calls, 4);
   assert.equal(s.hitCallLimit, true);
   assert.equal(s.total, 10); // 상세 없이 목록 정보로는 저장
+});
+
+test("첨부 변환 연결: 첫 수집은 변환, 재수집은 재사용, 실패는 기록만", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "collect-attach-"));
+  try {
+    const files = [
+      { atchType: "A", atchFileNm: "공고.pdf", url: "/sample-docs/sample-notice-900001.pdf" },
+      { atchType: "B", atchFileNm: "지원서.pdf", url: "/sample-docs/sample-notice-900003.pdf" },
+    ];
+    const client = () => new FakeClient([item(1), item(2)], { "1": { files }, "2": { files: [{ atchType: "A", atchFileNm: "없음.hwp", url: "/sample-docs/none.hwp" }] } });
+    const attachments = new AttachmentPipeline({ store: new LocalFileAttachmentStore(root), fetcher: localSampleFetcher() });
+    const repo = new MemoryPostingRepository();
+
+    const s1 = await collect({ client: client(), repo, now, attachments });
+    assert.deepEqual(s1.attachments, { processed: 2, converted: 1, failed: 1, unsupported: 0, reused: 0 });
+    const p1 = await repo.get("1");
+    assert.equal(p1?.attachments[0].conversion?.status, "success");
+    assert.match(p1!.attachments[0].conversion!.viewUrl!, /^\/files\/1\/0-/);
+    assert.equal(p1?.attachments[1].conversion, undefined); // B 유형은 기본 대상 아님
+    assert.equal((await repo.get("2"))?.attachments[0].conversion?.status, "failed");
+
+    const s2 = await collect({ client: client(), repo, now, attachments });
+    assert.deepEqual(s2.attachments, { processed: 1, converted: 0, failed: 1, unsupported: 0, reused: 1 });
+    assert.equal(s2.unchanged, 2); // 변환 결과는 공고 변경으로 치지 않음
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });

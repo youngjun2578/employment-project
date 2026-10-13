@@ -3,7 +3,8 @@
  *
  *   npx tsx scripts/collect.ts                       # fixture(샘플 JSON) → data/postings.json
  *   npx tsx scripts/collect.ts --dry-run             # 저장하지 않고 통계만
- *   npx tsx scripts/collect.ts --source live         # 실제 API (TODO: 아직 미구현, DATA_GO_KR_KEY 필요)
+ *   npx tsx scripts/collect.ts --source live         # 실제 API (DATA_GO_KR_KEY 필요)
+ *   npx tsx scripts/collect.ts --attachments         # 공고문 첨부를 받아 변환·저장(data/attachments/)
  *
  * 흐름: API 호출 → mapper 정규화 → 기관+공고번호 중복 제거 → 변경·마감 상태 갱신 → repository 저장
  * 서비스키는 DATA_GO_KR_KEY 환경변수에서만 읽고, 출력은 모두 redactKey() 를 거친다.
@@ -11,6 +12,8 @@
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { collect } from "../src/lib/collector/pipeline";
+import { AttachmentPipeline, LocalFileAttachmentStore } from "../src/lib/pipeline/attachments";
+import { defaultFetcher } from "../src/lib/pipeline/attachments/fetchers";
 import { JsonFilePostingRepository } from "../src/lib/repository/jsonFileRepository";
 import { MemoryPostingRepository } from "../src/lib/repository/memoryRepository";
 import type { RecruitApiClient } from "../src/lib/source/client";
@@ -24,6 +27,9 @@ const { values } = parseArgs({
     "max-pages": { type: "string", default: "20" },
     "max-calls": { type: "string", default: "300" },
     "dry-run": { type: "boolean", default: false },
+    attachments: { type: "boolean", default: false },
+    "attachments-dir": { type: "string", default: "data/attachments" },
+    "attachment-concurrency": { type: "string", default: "2" },
   },
 });
 
@@ -39,9 +45,19 @@ async function main() {
   const repo = values["dry-run"] ? new MemoryPostingRepository() : new JsonFilePostingRepository(outPath);
   log(`수집 시작: source=${client.name}${values["dry-run"] ? " (dry-run)" : ` → ${path.relative(process.cwd(), outPath)}`}`);
 
+  const attachments = values.attachments
+    ? new AttachmentPipeline({
+        store: new LocalFileAttachmentStore(path.resolve(process.cwd(), values["attachments-dir"]!)),
+        fetcher: defaultFetcher(),
+        concurrency: Number(values["attachment-concurrency"]),
+        log,
+      })
+    : undefined;
+
   const stats = await collect({
     client,
     repo,
+    attachments,
     maxPages: Number(values["max-pages"]),
     maxCalls: Number(values["max-calls"]),
     log,

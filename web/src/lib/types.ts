@@ -23,6 +23,28 @@ export interface Attachment {
   /** 사이트 안에서 열람할 때 쓰는 같은 출처(same-origin) URL */
   viewUrl: string | null;
   sortOrder: number;
+  /** 수집 단계의 변환·저장 결과. 없으면(샘플 모드 등) 확장자 기준으로 원본을 열람한다 */
+  conversion?: ConversionRecord | null;
+}
+
+/** 첨부 변환 파이프라인 결과 (src/lib/pipeline/attachments) */
+export interface ConversionRecord {
+  status: "success" | "failed" | "unsupported";
+  /** 매직넘버로 판별한 원본 형식 */
+  sourceFormat: "pdf" | "png" | "jpeg" | "gif" | "webp" | "hwp" | "hwpx" | "ole" | "zip" | "unknown";
+  viewFormat: "pdf" | "image" | "unsupported";
+  /** 열람용 URL (저장소가 주는 주소) */
+  viewUrl: string | null;
+  /** 추출 텍스트 URL (검색·요약용) */
+  textUrl: string | null;
+  /** extracted: 추출됨 / empty: 텍스트 없음(스캔본 추정) / unavailable: 도구 없음 / not-applicable: 이미지 등 */
+  textStatus: "extracted" | "empty" | "unavailable" | "not-applicable";
+  reason: string | null;
+  sha256: string | null;
+  bytes: number | null;
+  /** 사용한 변환 경로 (passthrough, pyhwp+libreoffice, libreoffice+h2orestart) */
+  method: string | null;
+  processedAt: string;
 }
 
 export interface Posting {

@@ -16,6 +16,10 @@ on:
         description: "저장하지 않고 통계만 출력"
         type: boolean
         default: false
+      attachments:
+        description: "공고문 첨부를 받아 PDF 로 변환·저장"
+        type: boolean
+        default: true
   # schedule:
   #   # 매일 06:47, 18:47 KST (UTC 21:47, 09:47). 정각을 피해 지연을 줄인다
   #   - cron: "47 21,9 * * *"
@@ -45,6 +49,42 @@ jobs:
 
       - run: npm ci
 
+      # ── 첨부 변환 도구 (docs/hwp-conversion-check.md) ──
+      - name: 변환 도구 설치 (LibreOffice, 자바 확장 지원, 한글 글꼴, poppler)
+        if: ${{ inputs.attachments }}
+        working-directory: .
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends \
+            libreoffice-writer libreoffice-java-common default-jre-headless \
+            fonts-nanum fonts-noto-cjk poppler-utils
+          # 한컴/윈도 글꼴 이름(굴림·바탕 등)을 나눔·Noto 로 연결
+          sudo cp web/scripts/fontconfig/99-hwp-korean-fonts.conf /etc/fonts/conf.d/
+          fc-cache -f
+
+      - name: H2Orestart 확장 설치 (버전·체크섬 고정)
+        if: ${{ inputs.attachments }}
+        env:
+          H2O_VERSION: v0.7.9
+          # 2026-10-13 에 받은 v0.7.9 릴리스 파일의 SHA-256. 버전을 올리면 함께 갱신할 것
+          H2O_SHA256: 2fbd199e156054f88f9eb57b47fac4c69204f90aaaf75387c07ae6f95488e822
+        run: |
+          curl -fsSL -o /tmp/H2Orestart.oxt "https://github.com/ebandal/H2Orestart/releases/download/${H2O_VERSION}/H2Orestart.oxt"
+          echo "$H2O_SHA256  /tmp/H2Orestart.oxt" | sha256sum -c -
+          sudo unopkg add --shared /tmp/H2Orestart.oxt
+
+      - uses: actions/setup-python@v5
+        if: ${{ inputs.attachments }}
+        with:
+          python-version: "3.12"
+
+      - name: pyhwp 설치 (six 는 pyhwp 가 의존성에 빠뜨려서 함께 설치)
+        if: ${{ inputs.attachments }}
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "pyhwp==0.1b15" six
+          echo "HWP5ODT_BIN=$(command -v hwp5odt)" >> "$GITHUB_ENV"
+
       - name: 수집
         env:
           # live 일 때만 키를 넘긴다. 키가 없으면 수집기가 안내 메시지와 함께 종료한다
@@ -52,19 +92,21 @@ jobs:
           # 입력값은 스크립트에 직접 끼워 넣지 않고 환경변수로 넘긴다(스크립트 인젝션 방지)
           SOURCE: ${{ inputs.source || 'fixture' }}
           DRY_RUN: ${{ inputs.dry_run }}
+          ATTACHMENTS: ${{ inputs.attachments }}
         run: |
           case "$SOURCE" in fixture|live) ;; *) echo "알 수 없는 source"; exit 1 ;; esac
-          if [ "$DRY_RUN" = "true" ]; then
-            npx tsx scripts/collect.ts --source "$SOURCE" --dry-run
-          else
-            npx tsx scripts/collect.ts --source "$SOURCE" --out data/postings.json
-          fi
+          ARGS=(--source "$SOURCE")
+          if [ "$DRY_RUN" = "true" ]; then ARGS+=(--dry-run); else ARGS+=(--out data/postings.json); fi
+          if [ "$ATTACHMENTS" = "true" ] && [ "$DRY_RUN" != "true" ]; then ARGS+=(--attachments); fi
+          npx tsx scripts/collect.ts "${ARGS[@]}"
 
       - name: 결과 업로드
         if: ${{ inputs.dry_run != true }}
         uses: actions/upload-artifact@v4
         with:
           name: postings-${{ inputs.source || 'fixture' }}
-          path: web/data/postings.json
+          path: |
+            web/data/postings.json
+            web/data/attachments/
           if-no-files-found: warn
           retention-days: 7

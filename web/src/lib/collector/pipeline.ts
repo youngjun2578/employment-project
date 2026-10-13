@@ -2,8 +2,9 @@ import { createHash } from "node:crypto";
 import { daysLeft } from "../dates";
 import { dedupeKey, toPosting, unwrapDetail, unwrapList } from "../mapper";
 import type { PostingRepository } from "../repository/types";
+import type { AttachmentPipeline } from "../pipeline/attachments";
 import type { RecruitApiClient } from "../source/client";
-import type { Posting, StoredPosting } from "../types";
+import type { Attachment, AttachmentType, Posting, StoredPosting } from "../types";
 
 export interface CollectOptions {
   client: RecruitApiClient;
@@ -16,6 +17,19 @@ export interface CollectOptions {
   /** 마감 후 이 일수가 지난 공고는 저장소에서 정리 */
   retainClosedDays?: number;
   log?: (msg: string) => void;
+  /** 주면 첨부를 받아 변환·저장한다(수집 단계). 없으면 건너뜀 */
+  attachments?: AttachmentPipeline;
+  /** 변환할 첨부 유형 (기본: 공고문 A) */
+  attachmentTypes?: AttachmentType[];
+}
+
+export interface AttachmentStats {
+  processed: number;
+  converted: number;
+  failed: number;
+  unsupported: number;
+  /** 원본 URL 이 같고 이전에 처리한 결과를 재사용 */
+  reused: number;
 }
 
 export interface CollectStats {
@@ -34,6 +48,7 @@ export interface CollectStats {
   pruned: number;
   total: number;
   hitCallLimit: boolean;
+  attachments: AttachmentStats | null;
 }
 
 /** meta 를 제외한 공고 내용의 해시. 바뀌었는지 판단용 */
@@ -56,7 +71,7 @@ export async function collect(opts: CollectOptions): Promise<CollectStats> {
 
   const stats: CollectStats = {
     source: client.name, calls: 0, listed: 0, skippedInvalid: 0, duplicates: 0, created: 0, updated: 0,
-    unchanged: 0, missing: 0, closed: 0, pruned: 0, total: 0, hitCallLimit: false,
+    unchanged: 0, missing: 0, closed: 0, pruned: 0, total: 0, hitCallLimit: false, attachments: null,
   };
   const canCall = () => {
     if (stats.calls >= maxCalls) stats.hitCallLimit = true;
@@ -139,7 +154,12 @@ export async function collect(opts: CollectOptions): Promise<CollectStats> {
   }).length;
   stats.total = out.length;
 
-  // 5) 저장
+  // 5) 첨부 변환·저장 (공고 내용 해시에는 넣지 않는다)
+  if (opts.attachments) {
+    stats.attachments = await processAttachments(out, existing, opts.attachments, opts.attachmentTypes ?? ["A"], log);
+  }
+
+  // 6) 저장
   await repo.saveAll(out, { source: client.name });
   return stats;
 }
@@ -147,7 +167,54 @@ export async function collect(opts: CollectOptions): Promise<CollectStats> {
 function stripMeta(p: StoredPosting): Posting {
   const { meta, ...rest } = p;
   void meta;
+  // 변환 결과는 공고 내용이 아니므로 해시 비교에서 빼기 위해 지운다(첨부 단계에서 다시 붙음)
+  return { ...rest, attachments: rest.attachments.map(withoutConversion) };
+}
+
+function withoutConversion(a: Attachment): Attachment {
+  const { conversion, ...rest } = a;
+  void conversion;
   return rest;
+}
+
+/**
+ * 목록에 있는 공고의 첨부를 변환한다. 이전 결과가 있고 원본 URL 이 같으며 실패가 아니면 재사용.
+ * 실패는 다음 수집 때 다시 시도한다. 하나가 실패해도 나머지는 계속한다.
+ */
+async function processAttachments(
+  postings: StoredPosting[],
+  existing: Map<string, StoredPosting>,
+  pipeline: AttachmentPipeline,
+  types: AttachmentType[],
+  log: (msg: string) => void,
+): Promise<AttachmentStats> {
+  const st: AttachmentStats = { processed: 0, converted: 0, failed: 0, unsupported: 0, reused: 0 };
+  const jobs: Promise<void>[] = [];
+  for (const p of postings) {
+    if (p.meta.sourceState !== "listed") continue;
+    const prev = existing.get(p.meta.dedupeKey);
+    p.attachments.forEach((a, index) => {
+      if (!types.includes(a.type) || !a.sourceUrl) return;
+      const old = prev?.attachments.find((x) => x.sourceUrl === a.sourceUrl)?.conversion;
+      if (old && old.status !== "failed") {
+        a.conversion = old;
+        st.reused++;
+        return;
+      }
+      jobs.push(
+        pipeline.process({ postingId: p.id, index, fileName: a.fileName, sourceUrl: a.sourceUrl }).then((rec) => {
+          a.conversion = rec;
+          st.processed++;
+          if (rec.status === "success") st.converted++;
+          else if (rec.status === "unsupported") st.unsupported++;
+          else st.failed++;
+          if (rec.status !== "success") log(`첨부 ${rec.status}(${p.id}#${index} ${rec.sourceFormat}): ${rec.reason}`);
+        }),
+      );
+    });
+  }
+  await Promise.all(jobs); // 동시 실행 수는 pipeline 의 Limiter 가 제한
+  return st;
 }
 
 /** 목록에서 오는 값(제목·기간 등)은 최신 목록 값으로 덮는다 */

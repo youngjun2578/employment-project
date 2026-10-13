@@ -1,4 +1,4 @@
-import { viewerKind } from "@/lib/attachments";
+import { resolveView } from "@/lib/attachments";
 import { ATTACHMENT_TYPE_LABEL, type Posting } from "@/lib/types";
 import { NoticeViewer } from "./NoticeViewer";
 
@@ -6,8 +6,7 @@ import { NoticeViewer } from "./NoticeViewer";
 export function NoticeSection({ posting }: { posting: Posting }) {
   const notices = posting.attachments.filter((a) => a.type === "A");
   // 공고문이 여러 개면 사이트 안에서 열 수 있는 형식을 먼저 보여준다
-  const notice =
-    notices.find((a) => a.viewUrl && viewerKind(a.extension) !== "unsupported") ?? notices[0] ?? null;
+  const notice = notices.find((a) => resolveView(a).kind !== "unsupported") ?? notices[0] ?? null;
   const others = posting.attachments.filter((a) => a !== notice);
 
   return (
@@ -26,13 +25,13 @@ export function NoticeSection({ posting }: { posting: Posting }) {
           <h3 className="subhead">기타 첨부</h3>
           <ul className="attach-list">
             {others.map((a, i) => {
-              const viewable = a.viewUrl && viewerKind(a.extension) !== "unsupported";
+              const v = resolveView(a);
               return (
                 <li key={i}>
                   <span className="chip">{ATTACHMENT_TYPE_LABEL[a.type]}</span>
                   <span className="name">{a.fileName}</span>
-                  {viewable ? (
-                    <a href={a.viewUrl!} target="_blank" rel="noopener noreferrer">열람</a>
+                  {v.url ? (
+                    <a href={v.url} target="_blank" rel="noopener noreferrer">열람</a>
                   ) : (
                     <span className="muted-text">사이트 내 열람 준비 중</span>
                   )}
